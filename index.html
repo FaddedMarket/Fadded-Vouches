@@ -4,69 +4,493 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fadded Vouches</title>
+<meta name="color-scheme" content="dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
-  *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0d1117;color:#c9d1d9;min-height:100vh}
-  .header{background:#161b22;border-bottom:1px solid #30363d;padding:32px 24px;text-align:center}
-  .header h1{font-size:28px;color:#f0f6fc}
-  .header p{color:#8b949e;margin-top:8px;font-size:15px}
-  .header .stats{display:flex;gap:24px;justify-content:center;margin-top:16px;flex-wrap:wrap}
-  .header .stats span{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:8px 18px;font-size:14px;color:#8b949e}
-  .header .stats b{color:#f0f6fc}
-  .search-wrap{max-width:800px;margin:24px auto 0;padding:0 16px}
-  .search-wrap input{width:100%;padding:10px 16px;border:1px solid #30363d;border-radius:8px;background:#0d1117;color:#c9d1d9;font-size:15px;outline:none}
-  .search-wrap input:focus{border-color:#58a6ff}
-  .container{max-width:800px;margin:24px auto;padding:0 16px 40px}
-  .vouch-card{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:20px;margin-bottom:16px}
-  .vouch-card .meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:6px}
-  .vouch-card .meta .author{font-weight:600;color:#f0f6fc;font-size:15px}
-  .vouch-card .meta .author .badge{background:#1f6feb;color:#fff;font-size:11px;padding:2px 8px;border-radius:10px;margin-left:6px}
-  .vouch-card .meta .date{color:#8b949e;font-size:13px}
-  .vouch-card .target{color:#58a6ff;font-size:14px;margin-bottom:8px}
-  .vouch-card .target::before{content:'→ '}
-  .vouch-card .content{color:#c9d1d9;font-size:15px;line-height:1.5;margin-bottom:12px;white-space:pre-wrap}
-  .vouch-card .attachments{display:flex;gap:10px;flex-wrap:wrap}
-  .vouch-card .attachments a{display:block;border:1px solid #30363d;border-radius:8px;overflow:hidden;max-width:240px;transition:border-color .2s}
-  .vouch-card .attachments a:hover{border-color:#58a6ff}
-  .vouch-card .attachments img,.vouch-card .attachments video{width:100%;display:block;max-height:200px;object-fit:cover}
-  .vouch-card .attachments .file-link{display:inline-block;padding:6px 12px;background:#0d1117;border-radius:6px;color:#58a6ff;text-decoration:none;font-size:13px}
-  .vouch-card .attachments .file-link:hover{text-decoration:underline}
-  .vouch-card .issue-link{display:inline-block;margin-top:10px;color:#8b949e;font-size:13px;text-decoration:none}
-  .vouch-card .issue-link:hover{color:#58a6ff;text-decoration:underline}
-  .empty{text-align:center;padding:60px 20px;color:#8b949e}
-  .empty h2{font-size:22px;margin-bottom:8px;color:#f0f6fc}
-  .lightbox{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:999;justify-content:center;align-items:center;padding:20px;cursor:zoom-out}
-  .lightbox.open{display:flex}
-  .lightbox img,.lightbox video{max-width:100%;max-height:90vh;border-radius:6px;cursor:default}
-  @media(max-width:600px){.vouch-card .attachments a{max-width:100%}}
+  :root {
+    --accent: #FF00FF;
+    --accent-dim: rgba(255,0,255,0.13);
+    --accent-glow: rgba(255,0,255,0.38);
+    --accent-glow2: rgba(255,0,255,0.22);
+    --bg: #0a0a0f;
+    --bg2: #0e0d16;
+    --surface: #141220;
+    --surface2: #1a1828;
+    --border: rgba(255,0,255,0.18);
+    --border-hover: rgba(255,0,255,0.55);
+    --text: #e4e0f0;
+    --muted: #7a738f;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80vw 60vh at 15% 10%, rgba(255,0,255,0.15) 0%, transparent 65%),
+      radial-gradient(ellipse 60vw 50vh at 85% 85%, rgba(255,0,255,0.14) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,0,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,0,255,0.025) 1px, transparent 1px);
+    background-size: 44px 44px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero {
+    text-align: center;
+    padding: 52px 0 32px;
+  }
+
+  .hero-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 2rem;
+    box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--accent), 0 0 28px var(--accent-glow);
+  }
+
+  .hero-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.8rem, 5vw, 3.2rem);
+    font-weight: 900;
+    letter-spacing: -1px;
+    color: #fff;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .hero-title span { color: var(--accent); }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    color: #FF00FF;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .hero-badge::before {
+    content: '';
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #FF00FF;
+    box-shadow: 0 0 8px #FF00FF;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+  }
+
+  .stats {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .stats span {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 18px;
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+  .stats b { color: var(--accent); }
+
+  .search-wrap {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .search-wrap input {
+    width: 100%;
+    padding: 12px 18px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: #fff;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.82rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .search-wrap input::placeholder { color: var(--muted); }
+  .search-wrap input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+
+  .vouch-list { margin-top: 28px; }
+
+  .vouch-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 14px;
+    transition: border-color 0.22s, box-shadow 0.22s;
+    position: relative;
+    overflow: hidden;
+  }
+  .vouch-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 9px;
+    background: linear-gradient(135deg, rgba(255,0,255,0.04), rgba(255,0,255,0.02));
+    opacity: 0;
+    transition: opacity 0.22s;
+    pointer-events: none;
+  }
+  .vouch-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 0 22px var(--accent-glow), 0 4px 16px rgba(0,0,0,0.4);
+  }
+  .vouch-card:hover::before { opacity: 1; }
+
+  .vouch-card .meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    gap: 6px;
+    position: relative;
+    z-index: 1;
+  }
+  .vouch-card .author {
+    font-weight: 700;
+    color: #fff;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+  }
+  .vouch-card .author .badge {
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.6rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 6px;
+    letter-spacing: 1px;
+  }
+  .vouch-card .date {
+    color: var(--muted);
+    font-size: 0.7rem;
+    letter-spacing: 0.5px;
+  }
+  .vouch-card .target {
+    color: var(--accent);
+    font-size: 0.78rem;
+    margin-bottom: 8px;
+    position: relative;
+    z-index: 1;
+  }
+  .vouch-card .target::before {
+    content: '→ ';
+    opacity: 0.6;
+  }
+  .vouch-card .content {
+    color: var(--text);
+    font-size: 0.82rem;
+    line-height: 1.6;
+    margin-bottom: 12px;
+    white-space: pre-wrap;
+    position: relative;
+    z-index: 1;
+  }
+  .vouch-card .attachments {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+  }
+  .vouch-card .attachments a {
+    display: block;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    max-width: 200px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .vouch-card .attachments a:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 14px var(--accent-glow2);
+  }
+  .vouch-card .attachments img,
+  .vouch-card .attachments video {
+    width: 100%;
+    display: block;
+    max-height: 160px;
+    object-fit: cover;
+  }
+  .vouch-card .attachments .file-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.72rem;
+    transition: all 0.2s;
+  }
+  .vouch-card .attachments .file-link:hover {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+  }
+  .vouch-card .issue-link {
+    display: inline-block;
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 0.7rem;
+    text-decoration: none;
+    transition: color 0.2s;
+    position: relative;
+    z-index: 1;
+  }
+  .vouch-card .issue-link:hover {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+  .empty h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 900;
+    font-size: 1.4rem;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+
+  .lightbox {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(5,4,12,0.92);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    cursor: zoom-out;
+    backdrop-filter: blur(8px);
+  }
+  .lightbox.open { display: flex; }
+  .lightbox img, .lightbox video {
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: 8px;
+    cursor: default;
+    box-shadow: 0 0 40px rgba(255,0,255,0.15);
+  }
+
+  .footer {
+    text-align: center;
+    font-size: 0.7rem;
+    color: var(--muted);
+    padding: 40px 0 0;
+    letter-spacing: 2px;
+    opacity: 0.6;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+  }
+  .loading-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin: 0 3px;
+    animation: bounce 1.2s infinite;
+    box-shadow: 0 0 8px var(--accent-glow);
+  }
+  .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
+    40% { transform: scale(1.1); opacity: 1; }
+  }
+
+  @media (max-width: 600px) {
+    .vouch-card .attachments a { max-width: 100%; }
+  }
 </style>
 </head>
 <body>
-<div class="header">
-  <h1>👍 Fadded Vouches</h1>
-  <p>Customer feedback &amp; testimonials</p>
-  <div class="stats">
-    <span>Total: <b id="total-count">0</b></span>
-    <span>With images: <b id="img-count">0</b></span>
+<div class="container">
+  <div class="hero">
+    <div class="hero-avatar">👍</div>
+    <h1 class="hero-title"><span>F</span>added <span>V</span>ouches</h1>
+    <p class="hero-badge">Customer Feedback</p>
+    <div class="stats">
+      <span>Total: <b id="total-count">0</b></span>
+      <span>With images: <b id="img-count">0</b></span>
+    </div>
+    <div class="search-wrap">
+      <input type="text" id="search" placeholder="🔍  Search vouches..." oninput="render()">
+    </div>
   </div>
-  <div class="search-wrap">
-    <input type="text" id="search" placeholder="Search by author, target, or content..." oninput="render()">
+
+  <div class="vouch-list" id="vouch-list">
+    <div class="loading">
+      <span class="loading-dot"></span>
+      <span class="loading-dot"></span>
+      <span class="loading-dot"></span>
+      <br><br>Loading vouches...
+    </div>
   </div>
+
+  <p class="footer">fadded_market · 2025</p>
 </div>
-<div class="container" id="vouch-list"></div>
 
 <div class="lightbox" id="lightbox" onclick="this.classList.remove('open')">
-  <img id="lb-img" src="" alt="">
+  <img id="lb-img" src="" alt="" style="display:none">
   <video id="lb-vid" src="" controls style="display:none"></video>
 </div>
 
 <script>
 let vouches = [];
-async function load(){try{const r=await fetch('vouches.json');if(!r.ok)throw Error('Not found');const d=await r.json();vouches=d.vouches||[];render()}catch(e){document.getElementById('vouch-list').innerHTML='<div class="empty"><h2>No vouches yet</h2><p>Be the first to leave one!</p></div>'}}
-function openLightbox(url,isVideo){const lb=document.getElementById('lightbox'),img=document.getElementById('lb-img'),vid=document.getElementById('lb-vid');img.style.display=isVideo?'none':'block';vid.style.display=isVideo?'block':'none';if(isVideo){vid.src=url;vid.play()}else{img.src=url}lb.classList.add('open')}
-function render(){const q=document.getElementById('search').value.toLowerCase();const list=document.getElementById('vouch-list');let filtered=vouches;if(q){filtered=vouches.filter(v=>(v.author?.name||'').toLowerCase().includes(q)||(v.target?.name||'').toLowerCase().includes(q)||(v.content||'').toLowerCase().includes(q))}if(!filtered.length){list.innerHTML='<div class="empty"><h2>No matches</h2><p>Try a different search term.</p></div>';updateStats();return}list.innerHTML=filtered.map(v=>{let attachments='';if(v.attachments&&v.attachments.length){attachments='<div class="attachments">'+v.attachments.map(a=>{const u=a.url||a;const isImg=a.type==='image'||/\.(png|jpg|jpeg|gif|webp|bmp)(\?.*)?$/i.test(u);const isVid=a.type==='video'||/\.(mp4|webm|mov|avi)(\?.*)?$/i.test(u);if(isImg)return'<a href="javascript:openLightbox(\''+u.replace(/'/g,"\\'")+'\',false)"><img src="'+u+'" loading="lazy" alt="Attachment"></a>';if(isVid)return'<a href="javascript:openLightbox(\''+u.replace(/'/g,"\\'")+'\',true)"><video src="'+u+'" preload="metadata"></video></a>';return'<a class="file-link" href="'+u+'" target="_blank" rel="noopener">'+(a.filename||'Download')+'</a>'}).join('')+'</div>'}const target=v.target?'<div class="target">'+v.target.name+'</div>':'';const issueLink=v.issue_url?'<a class="issue-link" href="'+v.issue_url+'" target="_blank" rel="noopener">View on GitHub ↗</a>':'';return'<div class="vouch-card"><div class="meta"><span class="author">'+esc(v.author?.name||'Anonymous')+' <span class="badge">vouched</span></span><span class="date">'+(v.created_at||'')+'</span></div>'+target+'<div class="content">'+esc(v.content)+'</div>'+attachments+issueLink+'</div>'}).join('');updateStats()}
-function updateStats(){document.getElementById('total-count').textContent=vouches.length;document.getElementById('img-count').textContent=vouches.filter(v=>v.attachments?.some(a=>{const u=a.url||a;return/\.(png|jpg|jpeg|gif|webp)(\?.*)?$/i.test(u)})).length}
-function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+
+async function load() {
+  try {
+    const r = await fetch('vouches.json');
+    if (!r.ok) throw new Error('Not found');
+    const d = await r.json();
+    vouches = d.vouches || [];
+  } catch (e) {
+    document.getElementById('vouch-list').innerHTML = '<div class="empty"><h2>No vouches yet</h2><p>Be the first to leave one!</p></div>';
+    return;
+  }
+  render();
+}
+
+function openLightbox(url, isVideo) {
+  const lb = document.getElementById('lightbox');
+  const img = document.getElementById('lb-img');
+  const vid = document.getElementById('lb-vid');
+  img.style.display = isVideo ? 'none' : 'block';
+  vid.style.display = isVideo ? 'block' : 'none';
+  if (isVideo) { vid.src = url; vid.play(); }
+  else { img.src = url; }
+  lb.classList.add('open');
+}
+
+function render() {
+  const q = document.getElementById('search').value.toLowerCase();
+  const list = document.getElementById('vouch-list');
+
+  let filtered = vouches;
+  if (q) {
+    filtered = vouches.filter(v =>
+      (v.author?.name || '').toLowerCase().includes(q) ||
+      (v.target?.name || '').toLowerCase().includes(q) ||
+      (v.content || '').toLowerCase().includes(q)
+    );
+  }
+
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty"><h2>No matches</h2><p>Try a different search term.</p></div>';
+    updateStats();
+    return;
+  }
+
+  list.innerHTML = filtered.map(v => {
+    let attachments = '';
+    if (v.attachments && v.attachments.length) {
+      attachments = '<div class="attachments">' +
+        v.attachments.map(a => {
+          const u = a.url || a;
+          const isImg = a.type === 'image' || /\.(png|jpg|jpeg|gif|webp|bmp)(\?.*)?$/i.test(u);
+          const isVid = a.type === 'video' || /\.(mp4|webm|mov|avi)(\?.*)?$/i.test(u);
+          if (isImg) return '<a href="javascript:openLightbox(\'' + u.replace(/'/g,"\\'") + '\',false)"><img src="' + u + '" loading="lazy" alt="Attachment"></a>';
+          if (isVid) return '<a href="javascript:openLightbox(\'' + u.replace(/'/g,"\\'") + '\',true)"><video src="' + u + '" preload="metadata"></video></a>';
+          return '<a class="file-link" href="' + u + '" target="_blank" rel="noopener">' + (a.filename || 'Download') + ' ↗</a>';
+        }).join('') + '</div>';
+    }
+
+    const target = v.target ? '<div class="target">' + esc(v.target.name || 'User') + '</div>' : '';
+    const issueLink = v.issue_url
+      ? '<a class="issue-link" href="' + v.issue_url + '" target="_blank" rel="noopener">View on GitHub ↗</a>'
+      : '';
+
+    return '<div class="vouch-card">' +
+      '<div class="meta">' +
+        '<span class="author">' + esc(v.author?.name || 'Anonymous') + ' <span class="badge">vouched</span></span>' +
+        '<span class="date">' + (v.created_at || '') + '</span>' +
+      '</div>' +
+      target +
+      '<div class="content">' + esc(v.content || '') + '</div>' +
+      attachments + issueLink +
+    '</div>';
+  }).join('');
+
+  updateStats();
+}
+
+function updateStats() {
+  document.getElementById('total-count').textContent = vouches.length;
+  document.getElementById('img-count').textContent = vouches.filter(v =>
+    v.attachments && v.attachments.some(a => {
+      const u = a.url || a;
+      return /\.(png|jpg|jpeg|gif|webp)(\?.*)?$/i.test(u);
+    })
+  ).length;
+}
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
 load();
 </script>
 </body>
