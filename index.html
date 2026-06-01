@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fadded Vouches</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0d1117;color:#c9d1d9;min-height:100vh}
+  .header{background:#161b22;border-bottom:1px solid #30363d;padding:32px 24px;text-align:center}
+  .header h1{font-size:28px;color:#f0f6fc}
+  .header p{color:#8b949e;margin-top:8px;font-size:15px}
+  .header .stats{display:flex;gap:24px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+  .header .stats span{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:8px 18px;font-size:14px;color:#8b949e}
+  .header .stats b{color:#f0f6fc}
+  .search-wrap{max-width:800px;margin:24px auto 0;padding:0 16px}
+  .search-wrap input{width:100%;padding:10px 16px;border:1px solid #30363d;border-radius:8px;background:#0d1117;color:#c9d1d9;font-size:15px;outline:none}
+  .search-wrap input:focus{border-color:#58a6ff}
+  .container{max-width:800px;margin:24px auto;padding:0 16px 40px}
+  .vouch-card{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:20px;margin-bottom:16px}
+  .vouch-card .meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:6px}
+  .vouch-card .meta .author{font-weight:600;color:#f0f6fc;font-size:15px}
+  .vouch-card .meta .author .badge{background:#1f6feb;color:#fff;font-size:11px;padding:2px 8px;border-radius:10px;margin-left:6px}
+  .vouch-card .meta .date{color:#8b949e;font-size:13px}
+  .vouch-card .target{color:#58a6ff;font-size:14px;margin-bottom:8px}
+  .vouch-card .target::before{content:'→ '}
+  .vouch-card .content{color:#c9d1d9;font-size:15px;line-height:1.5;margin-bottom:12px;white-space:pre-wrap}
+  .vouch-card .attachments{display:flex;gap:10px;flex-wrap:wrap}
+  .vouch-card .attachments a{display:block;border:1px solid #30363d;border-radius:8px;overflow:hidden;max-width:240px;transition:border-color .2s}
+  .vouch-card .attachments a:hover{border-color:#58a6ff}
+  .vouch-card .attachments img,.vouch-card .attachments video{width:100%;display:block;max-height:200px;object-fit:cover}
+  .vouch-card .attachments .file-link{display:inline-block;padding:6px 12px;background:#0d1117;border-radius:6px;color:#58a6ff;text-decoration:none;font-size:13px}
+  .vouch-card .attachments .file-link:hover{text-decoration:underline}
+  .vouch-card .issue-link{display:inline-block;margin-top:10px;color:#8b949e;font-size:13px;text-decoration:none}
+  .vouch-card .issue-link:hover{color:#58a6ff;text-decoration:underline}
+  .empty{text-align:center;padding:60px 20px;color:#8b949e}
+  .empty h2{font-size:22px;margin-bottom:8px;color:#f0f6fc}
+  .lightbox{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:999;justify-content:center;align-items:center;padding:20px;cursor:zoom-out}
+  .lightbox.open{display:flex}
+  .lightbox img,.lightbox video{max-width:100%;max-height:90vh;border-radius:6px;cursor:default}
+  @media(max-width:600px){.vouch-card .attachments a{max-width:100%}}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>👍 Fadded Vouches</h1>
+  <p>Customer feedback &amp; testimonials</p>
+  <div class="stats">
+    <span>Total: <b id="total-count">0</b></span>
+    <span>With images: <b id="img-count">0</b></span>
+  </div>
+  <div class="search-wrap">
+    <input type="text" id="search" placeholder="Search by author, target, or content..." oninput="render()">
+  </div>
+</div>
+<div class="container" id="vouch-list"></div>
+
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('open')">
+  <img id="lb-img" src="" alt="">
+  <video id="lb-vid" src="" controls style="display:none"></video>
+</div>
+
+<script>
+let vouches = [];
+async function load(){try{const r=await fetch('vouches.json');if(!r.ok)throw Error('Not found');const d=await r.json();vouches=d.vouches||[];render()}catch(e){document.getElementById('vouch-list').innerHTML='<div class="empty"><h2>No vouches yet</h2><p>Be the first to leave one!</p></div>'}}
+function openLightbox(url,isVideo){const lb=document.getElementById('lightbox'),img=document.getElementById('lb-img'),vid=document.getElementById('lb-vid');img.style.display=isVideo?'none':'block';vid.style.display=isVideo?'block':'none';if(isVideo){vid.src=url;vid.play()}else{img.src=url}lb.classList.add('open')}
+function render(){const q=document.getElementById('search').value.toLowerCase();const list=document.getElementById('vouch-list');let filtered=vouches;if(q){filtered=vouches.filter(v=>(v.author?.name||'').toLowerCase().includes(q)||(v.target?.name||'').toLowerCase().includes(q)||(v.content||'').toLowerCase().includes(q))}if(!filtered.length){list.innerHTML='<div class="empty"><h2>No matches</h2><p>Try a different search term.</p></div>';updateStats();return}list.innerHTML=filtered.map(v=>{let attachments='';if(v.attachments&&v.attachments.length){attachments='<div class="attachments">'+v.attachments.map(a=>{const u=a.url||a;const isImg=a.type==='image'||/\.(png|jpg|jpeg|gif|webp|bmp)(\?.*)?$/i.test(u);const isVid=a.type==='video'||/\.(mp4|webm|mov|avi)(\?.*)?$/i.test(u);if(isImg)return'<a href="javascript:openLightbox(\''+u.replace(/'/g,"\\'")+'\',false)"><img src="'+u+'" loading="lazy" alt="Attachment"></a>';if(isVid)return'<a href="javascript:openLightbox(\''+u.replace(/'/g,"\\'")+'\',true)"><video src="'+u+'" preload="metadata"></video></a>';return'<a class="file-link" href="'+u+'" target="_blank" rel="noopener">'+(a.filename||'Download')+'</a>'}).join('')+'</div>'}const target=v.target?'<div class="target">'+v.target.name+'</div>':'';const issueLink=v.issue_url?'<a class="issue-link" href="'+v.issue_url+'" target="_blank" rel="noopener">View on GitHub ↗</a>':'';return'<div class="vouch-card"><div class="meta"><span class="author">'+esc(v.author?.name||'Anonymous')+' <span class="badge">vouched</span></span><span class="date">'+(v.created_at||'')+'</span></div>'+target+'<div class="content">'+esc(v.content)+'</div>'+attachments+issueLink+'</div>'}).join('');updateStats()}
+function updateStats(){document.getElementById('total-count').textContent=vouches.length;document.getElementById('img-count').textContent=vouches.filter(v=>v.attachments?.some(a=>{const u=a.url||a;return/\.(png|jpg|jpeg|gif|webp)(\?.*)?$/i.test(u)})).length}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+load();
+</script>
+</body>
+</html>
