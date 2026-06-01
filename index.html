@@ -69,19 +69,6 @@
     padding: 52px 0 32px;
   }
 
-  .hero-avatar {
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-    background: var(--accent);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 16px;
-    font-size: 2rem;
-    box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--accent), 0 0 28px var(--accent-glow);
-  }
-
   .hero-title {
     font-family: 'Syne', sans-serif;
     font-size: clamp(1.8rem, 5vw, 3.2rem);
@@ -222,7 +209,7 @@
     z-index: 1;
   }
   .vouch-card .target::before {
-    content: '→ ';
+    content: '\2192 ';
     opacity: 0.6;
   }
   .vouch-card .content {
@@ -367,7 +354,6 @@
 <body>
 <div class="container">
   <div class="hero">
-    <div class="hero-avatar">👍</div>
     <h1 class="hero-title"><span>F</span>added <span>V</span>ouches</h1>
     <p class="hero-badge">Customer Feedback</p>
     <div class="stats">
@@ -375,7 +361,7 @@
       <span>With images: <b id="img-count">0</b></span>
     </div>
     <div class="search-wrap">
-      <input type="text" id="search" placeholder="🔍  Search vouches..." oninput="render()">
+      <input type="text" id="search" placeholder="??  Search vouches..." oninput="render()">
     </div>
   </div>
 
@@ -388,7 +374,7 @@
     </div>
   </div>
 
-  <p class="footer">fadded_market · 2025</p>
+  <p class="footer">fadded_market � 2025</p>
 </div>
 
 <div class="lightbox" id="lightbox" onclick="this.classList.remove('open')">
